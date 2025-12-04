@@ -1,21 +1,19 @@
+import os
 from pathlib import Path
+from decouple import config
+from django.utils.log import DEFAULT_LOGGING
+
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = config('SECRET_KEY')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6a)+d&@fw&r@64cy6#(01&pi!c7=z)z_gog*7t9a*-o873t3#-'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=list)
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -56,14 +54,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pos_back.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'PORT': config('DB_PORT'),
     }
 }
 
@@ -92,19 +92,138 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Harare'
 
 USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "filters": {
+        "debug_only": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+        "production_only": {
+            "()": "django.utils.log.RequireDebugFalse",
+        },
+    },
+
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} {lineno:d}: {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "app_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "when": "midnight",
+            "backupCount": 30,
+            "filename": os.path.join(LOG_DIR, "app.log"),
+            "formatter": "verbose",
+            "filters": ["debug_only"],
+            "encoding": "utf-8",
+        },
+
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "when": "midnight",
+            "backupCount": 60,
+            "filename": os.path.join(LOG_DIR, "error.log"),
+            "formatter": "verbose",
+            "filters": ["debug_only"],
+            "encoding": "utf-8",
+        },
+
+        "db_file": {
+            "level": "DEBUG",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "when": "midnight",
+            "backupCount": 10,
+            "filename": os.path.join(LOG_DIR, "db.log"),
+            "formatter": "verbose",
+            "filters": ["debug_only"],
+            "encoding": "utf-8",
+        },
+
+        "celery_file": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "when": "midnight",
+            "backupCount": 30,
+            "filename": os.path.join(LOG_DIR, "celery.log"),
+            "formatter": "verbose",
+            "filters": ["debug_only"],
+            "encoding": "utf-8",
+        },
+
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "filters": ["production_only"],
+        },
+    },
+
+    "loggers": {
+        "django": {
+            "handlers": ["app_file", "error_file", "console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+
+        "": {
+            "handlers": ["app_file", "error_file", "console"],
+            "level": "DEBUG",
+        },
+
+        "django.db.backends": {
+            "handlers": ["db_file"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+
+        "celery": {
+            "handlers": ["celery_file", "console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+
+# Celery
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
+
+CELERY_TIMEZONE = "Africa/Harare"
+CELERY_ENABLE_UTC = False
+
+CELERY_BEAT_SCHEDULE = {
+    "test-task-every-10-seconds": {
+        "task": "app1.tasks.test_task",
+        "schedule": timedelta(seconds=10),
+        "args": ("Celery is working",),
+    },
+}

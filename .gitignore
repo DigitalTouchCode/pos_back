@@ -39,3 +39,4 @@ media/
 *.swo
 *~
 .DS_Store
+.starts.md
