@@ -2,9 +2,9 @@ import uuid
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils import timezone
 
 from utils.models.base import TimeStampedModel
-from django.utils import timezone
 
 
 class UserManager(BaseUserManager):
