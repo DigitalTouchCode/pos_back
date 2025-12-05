@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "drf_yasg",
+
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -38,6 +40,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "pos_back.urls"
+
+# Custom user model
+AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATES = [
     {
@@ -220,9 +225,19 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
 }
+
+DEFAULT_FRONTEND_URL = "http://localhost:3000"  
