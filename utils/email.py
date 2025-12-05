@@ -1,4 +1,4 @@
-from django.core.mail import EmailMultiAternatives
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -14,7 +14,7 @@ def send_tenant_email(tenant, subject, to_email, template_name, context=None, fr
 
     from_email = from_email or f'"{tenant.name}" <{tenant.email_from}>'
 
-    email = EmailMultiAternatives(
+    email = EmailMultiAlternatives(
         subject=subject, 
         body=text_message, 
         from_email=from_email, 

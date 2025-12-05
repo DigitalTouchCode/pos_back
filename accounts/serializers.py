@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from .models import Tenant, Branch, Invitation
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -7,8 +8,11 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'role', 'first_name', 'last_name')
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+        fields = ('id', 'email', 'password', 'role', 'first_name', 'last_name', 'tenant')
+        extra_kwargs = {
+            'password': {'write_only': True, 'min_length': 5},
+            'tenant': {'read_only':True}
+        }
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)

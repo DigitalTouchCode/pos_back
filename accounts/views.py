@@ -10,7 +10,7 @@ from .serializers import (
 )
 
 from django.template.loader import render_to_string
-from djangoo.utils.html import strip_tags
+from django.utils.html import strip_tags
 from django.utils import timezone
 from datetime import timedelta
 
@@ -18,17 +18,27 @@ from loguru import logger
 
 from .tasks import send_invitation_email
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
 class CreateTenantView(generics.CreateAPIView):
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (permissions.IsAuthenticated,)
     serializer_class = TenantSerializer
 
     def perform_create(self, serializer):
         tenant = serializer.save()
         user = self.request.user
-        if user.is_authenticated and user.is_superuser:
-            tenant.owner = user
-            tenant.save()
+        logger.info(f'user role: {user.role} {user}')
+        if user.is_authenticated and (user.is_superuser or user.role == 'owner'): 
+            user.tenant=tenant
+            user.save()
         return tenant
+
+class ListTenantsView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = TenantSerializer
+    queryset = Tenant.objects.all()
+
 class InviteUserView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = InvitationSerializer
@@ -127,16 +137,54 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        if request.user.is_authenticated and (request.user.role == 'owner'\
+            or request.user.role == 'admin'):
+            user.tenant = request.user.tenant
+            user.save()
+
         return Response({
             "message": "User registered successfully",
             "user_id": user.id,
             "email": user.email
         }, status=status.HTTP_201_CREATED)
 
+class ListUsersView(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+    queryset = User.objects.filter(is_deleted=False).select_related('tenant')
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset
+        else:
+            return self.queryset.filter(tenant=self.request.user.tenant)
 
+class UpdateUserView(generics.UpdateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+    queryset = User.objects.all().select_related('tenant')
+    lookup_field = 'pk'
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset
+        else:
+            return self.queryset.filter(tenant=self.request.user.tenant)
+    
+    def patch(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+class DeleteUserView(generics.DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    queryset = User.objects.all().select_related('tenant')
+    lookup_field = 'pk'
+    
+    def delete(self, request, *args, **kwargs):
+        user = self.get_object()
+        user.is_deleted = True
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class UserProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]

@@ -72,13 +72,13 @@ class User(AbstractUser, TimeStampedModel):
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, null=True)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, null=True, related_name='users')
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True)
     username = None
     email = models.EmailField('email address', unique=True)
     password = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
-
+    is_deleted = models.BooleanField(default=False, null=True)
     role = models.CharField(choices=ROLE_CHOICES, max_length=100, default="owner")
     
     USERNAME_FIELD = 'email'
