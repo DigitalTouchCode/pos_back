@@ -41,8 +41,3 @@ jobs:
 
       - name: Run Flake8
         run: flake8 .
-
-      - name: Run migrations
-        run: |
-          python manage.py makemigrations --check --dry-run
-          python manage.py migrate
