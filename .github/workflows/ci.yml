@@ -14,20 +14,6 @@ jobs:
       DEBUG: ${{ secrets.DEBUG }} 
 
     services:
-      # postgres:
-      #   image: postgres:18
-      #   env:
-      #     POSTGRES_DB: test_db
-      #     POSTGRES_USER: test_user
-      #     POSTGRES_PASSWORD: test_pass
-      #   ports:
-      #     - 5432:5432
-      #   options: >-
-      #     --health-cmd="pg_isready -U test_user -d test_db"
-      #     --health-interval=5s
-      #     --health-timeout=5s
-      #     --health-retries=5
-
       redis:
         image: redis:7
         ports:
@@ -55,12 +41,6 @@ jobs:
 
       - name: Run Flake8
         run: flake8 .
-
-      # - name: Run Pytest
-      #   env:
-      #     DATABASE_URL: postgres://test_user:test_pass@localhost:5432/test_db
-      #     REDIS_URL: redis://localhost:6379/0
-      #   run: pytest -q
 
       - name: Run migrations
         run: |
