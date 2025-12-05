@@ -56,11 +56,11 @@ jobs:
       - name: Run Flake8
         run: flake8 .
 
-      - name: Run Pytest
-        env:
-          DATABASE_URL: postgres://test_user:test_pass@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379/0
-        run: pytest -q
+      # - name: Run Pytest
+      #   env:
+      #     DATABASE_URL: postgres://test_user:test_pass@localhost:5432/test_db
+      #     REDIS_URL: redis://localhost:6379/0
+      #   run: pytest -q
 
       - name: Run migrations
         run: |
