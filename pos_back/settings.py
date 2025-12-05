@@ -1,69 +1,68 @@
 import os
+from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
-from django.utils.log import DEFAULT_LOGGING
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-SECRET_KEY = config('SECRET_KEY')
-
-DEBUG = config('DEBUG', default=False, cast=bool)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=list)
+SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default=[], cast=list)
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'pos_back.urls'
+ROOT_URLCONF = "pos_back.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'pos_back.wsgi.application'
+WSGI_APPLICATION = "pos_back.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'PORT': config('DB_PORT'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        "PORT": config("DB_PORT"),
     }
 }
 
@@ -73,16 +72,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -90,30 +89,29 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'Africa/Harare'
+TIME_ZONE = "Africa/Harare"
 
 USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"
 EMAIL_PORT = 1025
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-
     "filters": {
         "debug_only": {
             "()": "django.utils.log.RequireDebugTrue",
@@ -122,7 +120,6 @@ LOGGING = {
             "()": "django.utils.log.RequireDebugFalse",
         },
     },
-
     "formatters": {
         "verbose": {
             "format": "[{asctime}] {levelname} {name} {lineno:d}: {message}",
@@ -133,7 +130,6 @@ LOGGING = {
             "style": "{",
         },
     },
-
     "handlers": {
         "app_file": {
             "level": "DEBUG",
@@ -145,7 +141,6 @@ LOGGING = {
             "filters": ["debug_only"],
             "encoding": "utf-8",
         },
-
         "error_file": {
             "level": "ERROR",
             "class": "logging.handlers.TimedRotatingFileHandler",
@@ -156,7 +151,6 @@ LOGGING = {
             "filters": ["debug_only"],
             "encoding": "utf-8",
         },
-
         "db_file": {
             "level": "DEBUG",
             "class": "logging.handlers.TimedRotatingFileHandler",
@@ -167,7 +161,6 @@ LOGGING = {
             "filters": ["debug_only"],
             "encoding": "utf-8",
         },
-
         "celery_file": {
             "level": "INFO",
             "class": "logging.handlers.TimedRotatingFileHandler",
@@ -178,32 +171,27 @@ LOGGING = {
             "filters": ["debug_only"],
             "encoding": "utf-8",
         },
-
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
             "filters": ["production_only"],
         },
     },
-
     "loggers": {
         "django": {
             "handlers": ["app_file", "error_file", "console"],
             "level": "INFO",
             "propagate": True,
         },
-
         "": {
             "handlers": ["app_file", "error_file", "console"],
             "level": "DEBUG",
         },
-
         "django.db.backends": {
             "handlers": ["db_file"],
             "level": "DEBUG",
             "propagate": False,
         },
-
         "celery": {
             "handlers": ["celery_file", "console"],
             "level": "INFO",
